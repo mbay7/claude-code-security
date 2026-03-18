@@ -1,0 +1,53 @@
+{
+  "_comment": "Claude Code security hooks — merge this into your ~/.claude/settings.json",
+  "_instructions": "Replace YOUR_USERNAME with your system username, or use $HOME in shell contexts. See docs/customization.md.",
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"~/.claude/hooks/memory-drift-check.py\"",
+            "statusMessage": "Checking memory integrity...",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // \"\"' | { read -r f; [[ \"$f\" =~ (^|/)\\.env([^/]|$) ]] && [[ ! \"$f\" =~ \\.env\\..*example$ ]] && [[ ! \"$f\" =~ \\.env\\.example$ ]] && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\".env files are blocked for security\"}}'; }",
+            "statusMessage": "Checking file safety..."
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"~/.claude/hooks/security-scan.py\"",
+            "statusMessage": "Scanning file for threats...",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"~/.claude/hooks/tool-audit.py\"",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

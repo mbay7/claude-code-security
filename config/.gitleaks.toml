@@ -1,0 +1,46 @@
+title = "Workspace Gitleaks Config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[a-zA-Z0-9\-_]{90,}'''
+tags = ["api-key", "anthropic"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "supabase-jwt"
+description = "Supabase anon/service role JWT"
+regex = '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+'''
+tags = ["api-key", "supabase"]
+severity = "HIGH"
+
+[[rules]]
+id = "supabase-url"
+description = "Supabase project URL"
+regex = '''https://[a-z0-9]{20}\.supabase\.co'''
+tags = ["url", "supabase"]
+severity = "MEDIUM"
+
+[allowlist]
+# Never scan these — they are safe
+paths = [
+  ".env.example",
+  ".env.*.example",
+  "node_modules",
+  "dist",
+  ".git",
+  ".*\\.lock",
+  "bun.lockb",
+]
+regexes = [
+  # Placeholder values
+  '''your[_-]?(key|secret|token|api[_-]?key)[_-]?here''',
+  '''sk-ant-\.{3}your_key_here''',
+  '''eyJhbGci\.{3}your_anon_key_here''',
+  # Test/example values
+  '''REPLACE_ME''',
+  '''<your[_-]''',
+]

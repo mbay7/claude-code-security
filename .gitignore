@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+
+# Editor
+.idea/
+*.swp
+*.swo
+
+# Don't commit backup files from install.sh
+*.bak

@@ -1,0 +1,81 @@
+# Workspace Security Policy
+_Last updated: [DATE]_
+
+## The One Rule
+Secrets live in `.env` locally and platform env vars in production. Nowhere else.
+**Do not create a `secrets.md`.** Any file with "secrets" in the name is a high-value target — accidental commits, cloud sync, and AI context leakage all become risks.
+
+---
+
+## Where Secrets Live
+
+| Environment | Location | Notes |
+|-------------|----------|-------|
+| Local dev | `.env` (gitignored) | Never commit |
+| Vercel / Netlify | Platform env vars UI | Set manually per environment |
+| GitHub Actions | Repository → Settings → Secrets | `${{ secrets.MY_KEY }}` |
+| AWS | AWS Secrets Manager or Parameter Store | |
+
+---
+
+## Per-Project Secrets
+
+| Project | Required vars | Production home |
+|---------|---------------|----------------|
+| [Project A] | `API_KEY`, `DB_URL` | [Platform] env vars |
+| [Project B] | `SERVICE_KEY` | [Platform] env vars |
+
+---
+
+## Claude Agent Rules
+
+- Claude **CANNOT** edit `.env` files — blocked by PreToolUse hook in `settings.json`
+- Claude **CAN** read `.env.example` (safe — placeholder values only)
+- Claude **SHOULD** invoke `/security-scanner` before reading or using any file from an external source
+
+---
+
+## Protections In Place
+
+| Layer | What it does | File |
+|-------|-------------|------|
+| `.gitignore` per project | Blocks `.env` from git staging | `project/.gitignore` |
+| `~/.gitignore_global` | Blocks `.env` in ALL repos on this machine | `~/.gitignore_global` |
+| PreToolUse hook | Claude cannot modify `.env` files | `~/.claude/settings.json` |
+| Gitleaks pre-commit | Scans staged files for key patterns before every commit | `.pre-commit-config.yaml` |
+| `security-scan.py` hook | Auto-scans files Claude reads from untrusted paths | `~/.claude/hooks/security-scan.py` |
+| `tool-audit.py` hook | Logs every tool Claude calls, flags anomalous activity | `~/.claude/hooks/tool-audit.py` |
+| `memory-drift-check.py` | Scans memory files for injected instructions at session start | `~/.claude/hooks/memory-drift-check.py` |
+| `/security-scanner` skill | Full 5-step scan of external content on demand | `~/.claude/skills/security-scanner.md` |
+
+---
+
+## Incident Response
+
+1. **Revoke immediately** — go to the provider dashboard and revoke the exposed key
+2. **Rotate** — generate a new key, update `.env` locally and platform env vars
+3. **If committed to git:**
+   ```bash
+   git filter-repo --path .env --invert-paths
+   git push --force   # confirm with team first
+   ```
+4. **Audit** — check `~/.claude/tool-audit.log` for any suspicious activity around the incident time
+5. **Post-mortem** — update this file with what changed
+
+---
+
+## Rotation Schedule
+
+- Rotate immediately if: key committed to git, key seen in logs, breach suspected
+- Rotate quarterly as standard practice
+
+---
+
+## New Project Checklist
+
+When starting any new project:
+- [ ] Create `.gitignore` with `.env` entries
+- [ ] Create `.env.example` with placeholder values only
+- [ ] Copy `.pre-commit-config-template.yaml` and run `pre-commit install`
+- [ ] Document project secrets in this file (var names only, never values)
+- [ ] Run `/security-scanner` on any external dependencies before integrating

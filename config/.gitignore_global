@@ -1,0 +1,50 @@
+# ── Global gitignore — applies to ALL git repos on this machine ──────
+# Activated via: git config --global core.excludesfile ~/.gitignore_global
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+secrets.yaml
+secrets.yml
+*credentials*.json
+service-account*.json
+.secrets/
+.vault/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# Editor
+.idea/
+*.swp
+*.swo
+.vscode/settings.json
+!.vscode/extensions.json
+
+# Node
+node_modules/
+.npm/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Claude Code workspace files
+.claude/
+*.claude-session

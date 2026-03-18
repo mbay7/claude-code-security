@@ -1,0 +1,35 @@
+# .pre-commit-config.yaml
+# Copy this to your project root, then run: pre-commit install
+# Reusable template from ~/.claude/.pre-commit-config-template.yaml
+
+repos:
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: Detect secrets (gitleaks)
+        language: system
+        entry: gitleaks protect --staged --config ~/.claude/.gitleaks.toml
+        pass_filenames: false
+        stages: [commit]
+
+      - id: no-env-files
+        name: Block .env file commits
+        language: python
+        entry: python3 -c "
+import sys, re
+blocked = [f for f in sys.argv[1:] if re.match(r'(^|.*/)\.env(?!\..*example)', f)]
+if blocked:
+    print(f'BLOCKED: refusing to commit secret files: {blocked}')
+    print('These files are gitignored for security. Use .env.example for templates.')
+    sys.exit(1)
+"
+        types: [file]
+        pass_filenames: true
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: detect-private-key
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-yaml
