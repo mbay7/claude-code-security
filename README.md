@@ -58,7 +58,7 @@ Git commit
 
 ```bash
 # 1. Clone
-git clone https://github.com/YOUR_USERNAME/claude-code-security.git
+git clone https://github.com/mbay7/claude-code-security.git
 cd claude-code-security
 
 # 2. Install
