@@ -2,6 +2,7 @@
 
 **Runtime security for Claude Code workspaces.** Blocks prompt injection, memory poisoning, secret exposure, and hook tampering — automatically, at every session.
 
+[![Mentioned in Awesome Claude Code](https://awesome.re/mentioned-badge.svg)](https://github.com/hesreallyhim/awesome-claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/mbay7/claude-code-security)](https://github.com/mbay7/claude-code-security/releases)
 [![Audit](https://github.com/mbay7/claude-code-security/actions/workflows/audit.yml/badge.svg)](https://github.com/mbay7/claude-code-security/actions/workflows/audit.yml)
