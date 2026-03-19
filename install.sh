@@ -88,7 +88,7 @@ ok "Directories ready: $HOOKS_DIR, $SKILLS_DIR"
 # ── Install hooks ─────────────────────────────────────────────────────────────
 header "4/6  Installing hooks..."
 
-for hook in security-scan.py tool-audit.py memory-drift-check.py; do
+for hook in security-scan.py tool-audit.py memory-drift-check.py memory-write-guard.py hook-integrity.sh; do
     src="$SCRIPT_DIR/hooks/$hook"
     dst="$HOOKS_DIR/$hook"
     if [ -f "$dst" ]; then
@@ -99,6 +99,10 @@ for hook in security-scan.py tool-audit.py memory-drift-check.py; do
     chmod +x "$dst"
     ok "Installed $hook"
 done
+
+# Generate integrity manifest after all hooks are in place
+info "Generating hook integrity manifest..."
+"$HOOKS_DIR/hook-integrity.sh" --init 2>/dev/null && ok "Integrity manifest created at $HOOKS_DIR/.integrity.sha256" || warn "Could not generate integrity manifest — run: $HOOKS_DIR/hook-integrity.sh --init"
 
 # ── Install skill ─────────────────────────────────────────────────────────────
 header "5/6  Installing /security-scanner skill..."
@@ -171,10 +175,12 @@ echo -e "${BOLD}─────────────────────�
 echo -e "${GREEN}${BOLD}Installation complete.${RESET}"
 echo ""
 echo "  Hooks installed:"
-echo "    • memory-drift-check.py  → SessionStart"
-echo "    • security-scan.py       → PreToolUse (Read)"
-echo "    • .env blocker           → PreToolUse (Write|Edit)"
-echo "    • tool-audit.py          → PostToolUse"
+echo "    • memory-drift-check.py  → SessionStart (memory poisoning scan)"
+echo "    • security-scan.py       → PreToolUse (injection + secrets scanner)"
+echo "    • .env blocker           → PreToolUse (write block)"
+echo "    • tool-audit.py          → PostToolUse (behavioral audit log)"
+echo "    • memory-write-guard.py  → PostToolUse (write-time injection guard)"
+echo "    • hook-integrity.sh      → on-demand SHA256 verification"
 echo ""
 echo "  Skill installed:"
 echo "    • /security-scanner"
@@ -189,5 +195,6 @@ echo ""
 echo "    2. Reload Claude Code to activate SessionStart hooks"
 echo ""
 echo "    3. Test: echo '{}' | python3 ~/.claude/hooks/memory-drift-check.py"
+echo "    4. Verify hook integrity: ~/.claude/hooks/hook-integrity.sh"
 echo ""
 echo -e "${BOLD}────────────────────────────────────────────────────${RESET}"
