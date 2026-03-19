@@ -91,7 +91,7 @@ MALICIOUS_PATTERNS = [
     re.compile(r'stratum\+tcp://|xmrig\b|mining_pool', re.IGNORECASE),
     re.compile(r'\bnc\s+-e\s+/bin/(bash|sh)\b', re.IGNORECASE),
     re.compile(r'base64\s+(-d|--decode)\s*\|+\s*(sh|bash)', re.IGNORECASE),
-    re.compile(r'(readFileSync|open\s*\(|Path\.read)\s*[^)]*[\'"](\.ssh|\.aws|/etc/passwd|/etc/shadow|\.claude)[\'"]', re.IGNORECASE),
+    re.compile(r'(readFileSync|open\s*\(|Path\.read)\s*[^)]*[\'"][^\'"]*(\~\/\.ssh|\.ssh\/|~\/\.aws|\.aws\/credentials|/etc/passwd|/etc/shadow|\.claude\/)', re.IGNORECASE),
     re.compile(r'/etc/(passwd|shadow|sudoers)', re.IGNORECASE),
 ]
 

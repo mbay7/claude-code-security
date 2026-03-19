@@ -11,6 +11,12 @@
             "command": "python3 \"~/.claude/hooks/memory-drift-check.py\"",
             "statusMessage": "Checking memory integrity...",
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "python3 \"~/.claude/hooks/mcp-verifier.py\"",
+            "statusMessage": "Verifying MCP servers...",
+            "async": true
           }
         ]
       }

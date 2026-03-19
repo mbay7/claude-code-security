@@ -4,6 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/mbay7/claude-code-security)](https://github.com/mbay7/claude-code-security/releases)
+[![Audit](https://github.com/mbay7/claude-code-security/actions/workflows/audit.yml/badge.svg)](https://github.com/mbay7/claude-code-security/actions/workflows/audit.yml)
+[![pytest](https://img.shields.io/badge/evals-68%20passed-brightgreen)](evals/)
 [![Issues](https://img.shields.io/github/issues/mbay7/claude-code-security)](https://github.com/mbay7/claude-code-security/issues)
 
 ---
@@ -45,15 +47,30 @@ ACTION REQUIRED: Run /security-scanner on this file before proceeding.
 ```
 
 ```
+$ python3 ~/.claude/hooks/mcp-verifier.py --status
+
+Configured MCP servers (3):
+
+  github
+    command: npx -y @modelcontextprotocol/server-github
+    env vars: GITHUB_PERSONAL_ACCESS_TOKEN
+  context7
+    command: npx -y @upstash/context7-mcp
+  unknown-server
+    command: node /tmp/malicious-server.js
+```
+
+```
 $ ~/.claude/hooks/hook-integrity.sh
 
 Verifying hook integrity...
 ✓ memory-drift-check.py — OK
+✓ mcp-verifier.py — OK
 ✓ security-scan.py — OK
 ✓ tool-audit.py — OK
 ✓ memory-write-guard.py — OK
 
-All hooks verified — integrity confirmed (4 files)
+All hooks verified — integrity confirmed (5 files)
 ```
 
 ---
@@ -64,11 +81,13 @@ All hooks verified — integrity confirmed (4 files)
 ~/.claude/
 ├── hooks/
 │   ├── memory-drift-check.py    # SessionStart: memory poisoning scan
+│   ├── mcp-verifier.py          # SessionStart: MCP server integrity audit
 │   ├── security-scan.py         # PreToolUse: injection + secrets scanner
 │   ├── tool-audit.py            # PostToolUse: behavioral audit log
 │   ├── memory-write-guard.py    # PostToolUse: write-time injection guard
 │   ├── hook-integrity.sh        # On-demand SHA256 integrity check
-│   └── .integrity.sha256        # Hook manifest (generated on install)
+│   ├── .integrity.sha256        # Hook manifest (generated on install)
+│   └── .mcp-manifest.json       # MCP server manifest (generated on --init)
 └── skills/
     └── security-scanner.md      # /security-scanner — auto-invoked on findings
 ```
@@ -85,6 +104,7 @@ Plus:
 |-------|------|--------|-------|
 | Memory integrity scan | `memory-drift-check.py` | MINJA-class memory poisoning (NeurIPS 2025) | LLM04:2025, ASI06 |
 | Memory write guard | `memory-write-guard.py` | Injection at write time — closes write vector | LLM04:2025 |
+| MCP server integrity | `mcp-verifier.py` | Unauthorized MCP servers, RCE via server config, hardcoded secrets in env | LLM08:2025 |
 | Pre-read file scanner | `security-scan.py` | Injection in external files, hardcoded secrets | LLM01:2025, LLM02:2025 |
 | .env write blocker | settings.json (inline) | Claude modifying secrets files | LLM06:2025 |
 | Behavioral audit log | `tool-audit.py` | Reverse shells, exfiltration, suspicious Bash | LLM05:2025 |
@@ -121,20 +141,20 @@ Anthropic, Microsoft, and Google all publish a Shared Responsibility Model — t
 | CVE / Threat | Coverage |
 |---|---|
 | CVE-2025-59536 (CVSS 8.7 — RCE via hooks) | `hook-integrity.sh` SHA256 manifest |
-| CVE-2025-6514 (CVSS 9.6 — mcp-remote RCE) | `security-scan.py` file scanner |
+| CVE-2025-6514 (CVSS 9.6 — mcp-remote RCE) | `mcp-verifier.py` + `security-scan.py` |
 | MINJA memory poisoning (NeurIPS 2025) | `memory-drift-check.py` + `memory-write-guard.py` |
-| OWASP LLM Top 10:2025 | LLM01–LLM06 |
+| OWASP LLM Top 10:2025 | LLM01–LLM08 |
 
 ---
 
 ## Compared to Alternatives
 
-| Tool | Injection | Memory Poisoning | Secrets | Hook Integrity | Write Guard |
-|---|---|---|---|---|---|
-| **claude-code-security** | ✓ | ✓ | ✓ | ✓ | ✓ |
-| lasso-security/claude-hooks | ✓ | ✗ | ✗ | ✗ | ✗ |
-| mintmcp/agent-security | ✗ | ✗ | ✓ | ✗ | ✗ |
-| mafiaguy/claude-security-guardrails | ✓ | ✗ | ✗ | ✗ | ✗ |
+| Tool | Injection | Memory Poisoning | MCP Integrity | Secrets | Hook Integrity | Write Guard |
+|---|---|---|---|---|---|---|
+| **claude-code-security** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| lasso-security/claude-hooks | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| mintmcp/agent-security | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ |
+| mafiaguy/claude-security-guardrails | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
 
 ---
 

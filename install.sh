@@ -88,7 +88,7 @@ ok "Directories ready: $HOOKS_DIR, $SKILLS_DIR"
 # ── Install hooks ─────────────────────────────────────────────────────────────
 header "4/6  Installing hooks..."
 
-for hook in security-scan.py tool-audit.py memory-drift-check.py memory-write-guard.py hook-integrity.sh; do
+for hook in security-scan.py tool-audit.py memory-drift-check.py memory-write-guard.py hook-integrity.sh mcp-verifier.py; do
     src="$SCRIPT_DIR/hooks/$hook"
     dst="$HOOKS_DIR/$hook"
     if [ -f "$dst" ]; then
@@ -176,6 +176,7 @@ echo -e "${GREEN}${BOLD}Installation complete.${RESET}"
 echo ""
 echo "  Hooks installed:"
 echo "    • memory-drift-check.py  → SessionStart (memory poisoning scan)"
+echo "    • mcp-verifier.py        → SessionStart (MCP server integrity)"
 echo "    • security-scan.py       → PreToolUse (injection + secrets scanner)"
 echo "    • .env blocker           → PreToolUse (write block)"
 echo "    • tool-audit.py          → PostToolUse (behavioral audit log)"
@@ -195,6 +196,7 @@ echo ""
 echo "    2. Reload Claude Code to activate SessionStart hooks"
 echo ""
 echo "    3. Test: echo '{}' | python3 ~/.claude/hooks/memory-drift-check.py"
-echo "    4. Verify hook integrity: ~/.claude/hooks/hook-integrity.sh"
+echo "    4. Initialize MCP manifest: python3 ~/.claude/hooks/mcp-verifier.py --init"
+echo "    5. Verify hook integrity: ~/.claude/hooks/hook-integrity.sh"
 echo ""
 echo -e "${BOLD}────────────────────────────────────────────────────${RESET}"
