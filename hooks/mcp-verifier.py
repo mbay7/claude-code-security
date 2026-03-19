@@ -82,7 +82,7 @@ def read_mcp_servers() -> dict[str, dict]:
     return servers
 
 
-def load_manifest() -> dict | None:
+def load_manifest() ->dict:
     if MANIFEST.exists():
         try:
             return json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -108,7 +108,7 @@ def save_manifest(servers: dict[str, dict]) -> None:
     MANIFEST.write_text(json.dumps(manifest, indent=2))
 
 
-def check_suspicious_command(name: str, config: dict) -> list[str]:
+def check_suspicious_command(name: str, config: dict) -> list:
     findings = []
     command = config.get("command", "")
     args = config.get("args", [])
@@ -120,7 +120,7 @@ def check_suspicious_command(name: str, config: dict) -> list[str]:
     return findings
 
 
-def check_env_secrets(name: str, config: dict) -> list[str]:
+def check_env_secrets(name: str, config: dict) -> list:
     findings = []
     env = config.get("env", {})
     for var_name, value in env.items():
@@ -137,7 +137,7 @@ def check_env_secrets(name: str, config: dict) -> list[str]:
     return findings
 
 
-def check_unknown_servers(servers: dict, manifest: dict) -> list[str]:
+def check_unknown_servers(servers: dict, manifest: dict) -> list:
     trusted = manifest.get("trusted_servers", {})
     unknown = [name for name in servers if name not in trusted]
     if unknown:
@@ -145,7 +145,7 @@ def check_unknown_servers(servers: dict, manifest: dict) -> list[str]:
     return []
 
 
-def check_command_drift(servers: dict, manifest: dict) -> list[str]:
+def check_command_drift(servers: dict, manifest: dict) -> list:
     """Flag servers whose commands changed since the manifest was generated."""
     trusted = manifest.get("trusted_servers", {})
     findings = []
