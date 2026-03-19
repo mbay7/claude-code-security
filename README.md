@@ -13,12 +13,14 @@
 ## Install
 
 ```bash
-git clone https://github.com/mbay7/claude-code-security.git
-cd claude-code-security
-./install.sh
+git clone https://github.com/mbay7/claude-code-security.git && cd claude-code-security && ./install.sh
 ```
 
 Reload Claude Code. Done.
+
+> **Why git clone instead of `curl | bash`?** You're installing a security tool. Cloning first lets you read the code before it runs on your machine — that's the right default.
+
+**Requirements:** `python3`, `jq` (auto-installed via brew if missing)
 
 ---
 
@@ -119,6 +121,26 @@ Plus:
 **Secret patterns (8):** Anthropic API keys · OpenAI keys · AWS credentials · GitHub PATs · Stripe live keys · private key blocks · Supabase JWTs
 
 **Malicious code patterns (5):** reverse shells (`nc -e /bin/bash`) · crypto miners (`xmrig`, `stratum+tcp`) · `base64 | bash` pipes · sensitive file reads (`~/.ssh`, `/etc/passwd`)
+
+---
+
+## Evals
+
+Detection claims are backed by 68 automated tests across all threat categories.
+
+```bash
+pip install pytest
+python -m pytest evals/ -v
+```
+
+| Category | Tests | Coverage |
+|---|---|---|
+| Prompt injection | 20 | Direct overrides, role hijacks, structural tags, Unicode steganography |
+| Secret exposure | 17 | All 8 key types, crypto material, placeholder false-positive validation |
+| Memory poisoning | 13 | Write guard injection, clean-write false positives, edge cases |
+| Behavioral anomalies | 18 | Reverse shells, miners, exfil patterns, tool-audit clean/anomaly split |
+
+CI runs evals on every push and PR via [GitHub Actions](.github/workflows/audit.yml).
 
 ---
 

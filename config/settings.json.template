@@ -51,6 +51,11 @@
             "type": "command",
             "command": "python3 \"~/.claude/hooks/tool-audit.py\"",
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "python3 \"~/.claude/hooks/memory-write-guard.py\"",
+            "async": true
           }
         ]
       }

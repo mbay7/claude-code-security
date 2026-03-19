@@ -104,6 +104,10 @@ done
 info "Generating hook integrity manifest..."
 "$HOOKS_DIR/hook-integrity.sh" --init 2>/dev/null && ok "Integrity manifest created at $HOOKS_DIR/.integrity.sha256" || warn "Could not generate integrity manifest — run: $HOOKS_DIR/hook-integrity.sh --init"
 
+# Generate MCP server manifest
+info "Initializing MCP server manifest..."
+python3 "$HOOKS_DIR/mcp-verifier.py" --init 2>/dev/null && ok "MCP manifest created at $HOOKS_DIR/.mcp-manifest.json" || warn "Could not generate MCP manifest — run: python3 ~/.claude/hooks/mcp-verifier.py --init"
+
 # ── Install skill ─────────────────────────────────────────────────────────────
 header "5/6  Installing /security-scanner skill..."
 
@@ -196,7 +200,7 @@ echo ""
 echo "    2. Reload Claude Code to activate SessionStart hooks"
 echo ""
 echo "    3. Test: echo '{}' | python3 ~/.claude/hooks/memory-drift-check.py"
-echo "    4. Initialize MCP manifest: python3 ~/.claude/hooks/mcp-verifier.py --init"
-echo "    5. Verify hook integrity: ~/.claude/hooks/hook-integrity.sh"
+echo "    4. Verify hook integrity: ~/.claude/hooks/hook-integrity.sh"
+echo "    5. Run evals: pip install pytest && python -m pytest evals/ -v"
 echo ""
 echo -e "${BOLD}────────────────────────────────────────────────────${RESET}"
